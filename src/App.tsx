@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import "./App.css";
+import { apnStatusLabel, lookupApnsForSales, type EnrichedSale } from "./lib/apnLookup";
 import {
   compareSales,
   formatCurrency,
@@ -16,14 +17,18 @@ function App() {
   const [redfinFile, setRedfinFile] = useState<File | null>(null);
   const [altadenaOnly, setAltadenaOnly] = useState(true);
   const [result, setResult] = useState<CompareResult | null>(null);
+  const [enrichedSales, setEnrichedSales] = useState<EnrichedSale[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isWorking, setIsWorking] = useState(false);
+  const [progressLabel, setProgressLabel] = useState("");
   const [copied, setCopied] = useState(false);
 
   const pasteRows = useMemo(
-    () => (result ? result.newSales.map(toSheetRow) : []),
-    [result],
+    () => enrichedSales.map((sale) => toSheetRow(sale, sale.apnLookup.apn)),
+    [enrichedSales],
   );
+
+  const apnMatchedCount = enrichedSales.filter((sale) => sale.apnLookup.status === "matched").length;
 
   async function runComparison() {
     if (!sheetFile || !redfinFile) return;
@@ -31,18 +36,31 @@ function App() {
     setIsWorking(true);
     setError(null);
     setCopied(false);
+    setResult(null);
+    setEnrichedSales([]);
+    setProgressLabel("Comparing files...");
 
     try {
       const [existing, redfin] = await Promise.all([
         parseSheetFile(sheetFile),
         parseRedfinFile(redfinFile),
       ]);
-      setResult(compareSales(existing, redfin, { altadenaOnly }));
+      const compareResult = compareSales(existing, redfin, { altadenaOnly });
+      setResult(compareResult);
+
+      if (compareResult.newSales.length) {
+        const enriched = await lookupApnsForSales(compareResult.newSales, (current, total) => {
+          setProgressLabel(`Looking up APNs... ${current} / ${total}`);
+        });
+        setEnrichedSales(enriched);
+      }
     } catch (err) {
       setResult(null);
+      setEnrichedSales([]);
       setError(err instanceof Error ? err.message : "Something went wrong while comparing files.");
     } finally {
       setIsWorking(false);
+      setProgressLabel("");
     }
   }
 
@@ -60,8 +78,8 @@ function App() {
         <h1>Sale Smart</h1>
         <p>
           Upload your current Google Sheet export and a fresh Redfin CSV. The app finds sales that
-          are not already on your <strong>Sales Events</strong> tab and formats them for a clean paste
-          back into the sheet.
+          are not already on your <strong>Sales Events</strong> tab, looks up APNs from LA County
+          parcel data, and formats them for a clean paste back into the sheet.
         </p>
       </header>
 
@@ -74,6 +92,7 @@ function App() {
               onChange={(event) => {
                 setSheetFile(event.target.files?.[0] ?? null);
                 setResult(null);
+                setEnrichedSales([]);
                 setCopied(false);
               }}
             />
@@ -89,6 +108,7 @@ function App() {
               onChange={(event) => {
                 setRedfinFile(event.target.files?.[0] ?? null);
                 setResult(null);
+                setEnrichedSales([]);
                 setCopied(false);
               }}
             />
@@ -113,7 +133,7 @@ function App() {
             disabled={!sheetFile || !redfinFile || isWorking}
             onClick={runComparison}
           >
-            {isWorking ? "Comparing..." : "Find new sales"}
+            {isWorking ? progressLabel || "Working..." : "Find new sales"}
           </button>
         </div>
       </section>
@@ -136,8 +156,8 @@ function App() {
               <span>new sales to add</span>
             </div>
             <div className="stat-card">
-              <strong>{result.alreadyTracked.length}</strong>
-              <span>already tracked</span>
+              <strong>{apnMatchedCount}</strong>
+              <span>APNs auto-filled</span>
             </div>
           </div>
 
@@ -147,7 +167,8 @@ function App() {
                 <h3>New sales ready to paste</h3>
                 <p>
                   Copy the rows below, then paste directly into the next empty row on your Sales
-                  Events tab. APN and buyer details can be filled in afterward.
+                  Events tab. APNs are filled automatically when LA County returns exactly one
+                  parcel match.
                 </p>
               </div>
               <div>
@@ -158,12 +179,14 @@ function App() {
               </div>
             </div>
 
-            {pasteRows.length ? (
+            {enrichedSales.length ? (
               <div className="table-wrap">
                 <table>
                   <thead>
                     <tr>
                       <th>Address</th>
+                      <th>APN</th>
+                      <th>APN Status</th>
                       <th>Sale Price</th>
                       <th>Sale Date</th>
                       <th>Lot SqFt</th>
@@ -171,9 +194,22 @@ function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {result.newSales.map((sale) => (
+                    {enrichedSales.map((sale) => (
                       <tr key={`${sale.address}-${sale.saleDateRaw}-${sale.price}`}>
                         <td>{sale.address}</td>
+                        <td>{sale.apnLookup.apn || "—"}</td>
+                        <td>
+                          <span className={`apn-status apn-status-${sale.apnLookup.status}`}>
+                            {apnStatusLabel(sale.apnLookup.status)}
+                          </span>
+                          {sale.apnLookup.candidateApns &&
+                          sale.apnLookup.status === "ambiguous" ? (
+                            <div className="apn-note">{sale.apnLookup.candidateApns}</div>
+                          ) : null}
+                          {sale.apnLookup.note && sale.apnLookup.status !== "matched" ? (
+                            <div className="apn-note">{sale.apnLookup.note}</div>
+                          ) : null}
+                        </td>
                         <td>{sale.price !== null ? formatCurrency(sale.price) : "—"}</td>
                         <td>{sale.saleDate ? formatSheetDate(sale.saleDate) : "—"}</td>
                         <td>{sale.lotSqFt?.toLocaleString() ?? "—"}</td>

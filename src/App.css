@@ -306,6 +306,31 @@ tbody tr:last-child td {
   color: var(--warning);
 }
 
+.apn-status {
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.apn-status-matched {
+  color: var(--success);
+}
+
+.apn-status-ambiguous,
+.apn-status-no_match,
+.apn-status-unparsed,
+.apn-status-skipped,
+.apn-status-error {
+  color: var(--warning);
+}
+
+.apn-note {
+  margin-top: 0.35rem;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
 .copy-success {
   color: var(--success);
   font-size: 0.86rem;

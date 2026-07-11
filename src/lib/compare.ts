@@ -282,7 +282,7 @@ export function formatHistoryLine(date: Date, price: number): string {
   return `[${formattedDate}] Sold to Unknown for ${formatCurrency(price)}. `;
 }
 
-export function toSheetRow(record: RedfinRecord): SheetRow {
+export function toSheetRow(record: RedfinRecord, apn = ""): SheetRow {
   const saleDate = record.saleDate ? formatSheetDate(record.saleDate) : "";
   const price = record.price ?? "";
   const history =
@@ -292,7 +292,7 @@ export function toSheetRow(record: RedfinRecord): SheetRow {
 
   return {
     Address: record.address,
-    APN: "",
+    APN: apn,
     "Address - Sold Since Fire": true,
     "Sale Price": price,
     "Sale Date": saleDate,
