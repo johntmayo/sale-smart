@@ -75,6 +75,14 @@ function App() {
     <main className="app">
       <header className="hero">
         <span className="eyebrow">Altadena Property Sales</span>
+        <a
+          className="manual-apn-link"
+          href="https://portal.assessor.lacounty.gov/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Manually look up APNs
+        </a>
         <h1>Sale Smart</h1>
         <p>
           Upload your current Google Sheet export and a fresh Redfin CSV. The app finds sales that
