@@ -1,16 +1,25 @@
 ﻿# Sale Smart
 
-A small local web app for comparing your Altadena property sales Google Sheet export against a fresh Redfin CSV download.
+Compare your Altadena property sales Google Sheet export against a fresh Redfin CSV download.
 
-## Host on GitHub Pages
+## GitHub Pages
 
-1. Push this repo to GitHub.
-2. Go to **Settings -> Pages**.
-3. Set **Source** to **GitHub Actions** (not "Deploy from a branch").
-4. Push to `main` and wait for the deploy workflow to finish.
+1. Go to **Settings -> Pages**
+2. Set **Source** to **Deploy from a branch**
+3. Branch: **main**, folder: **/docs**
+4. Save and wait a minute, then refresh your site
 
-Live URL: `https://johntmayo.github.io/sale-smart/`
+## Update the live site
 
-### White screen fix
+After code changes:
 
-If the title loads but the page is blank, GitHub Pages is serving the development `index.html` instead of the built app. View page source: if you see `/src/main.tsx`, switch Pages to **GitHub Actions** and redeploy.
+```bash
+npm run build
+git add docs
+git commit --trailer "Co-authored-by: Cursor <cursoragent@cursor.com>" -m "Rebuild site"
+git push
+```
+
+## Local use
+
+Double-click `start-desktop.bat`, or run `npm run desktop`.

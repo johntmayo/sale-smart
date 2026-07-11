@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "desktop": "npm run build && vite preview --open",
+    "preview": "vite preview --outDir docs",
+    "desktop": "npm run build && vite preview --open --outDir docs",
     "lint": "oxlint"
   },
   "dependencies": {
