@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+const pagesBase = process.env.PAGES_BASE
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // Relative asset paths so the built app works from GitHub Pages and local preview.
-  base: './',
+  // Use /repo-name/ on GitHub Pages; keep relative paths for local preview.
+  base: pagesBase ?? './',
 })
