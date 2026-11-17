@@ -89,6 +89,30 @@ body {
   line-height: 1.6;
 }
 
+.howto {
+  max-width: 62ch;
+  margin: 1.25rem 0 0;
+  padding: 0 0 0 1.25rem;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.howto li + li {
+  margin-top: 0.65rem;
+}
+
+.howto a {
+  color: var(--accent-dark);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.howto a:hover {
+  color: var(--accent);
+}
+
 .panel {
   background: var(--surface);
   border: 1px solid var(--line);
