@@ -85,10 +85,36 @@ function App() {
         </a>
         <h1>Sale Smart</h1>
         <p>
-          Upload your current Google Sheet export and a fresh Redfin CSV. The app finds sales that
-          are not already on your <strong>Sales Events</strong> tab, looks up APNs from LA County
-          parcel data, and formats them for a clean paste back into the sheet.
+          Find Redfin sales that are not already on Altagether&apos;s{" "}
+          <strong>Sales Events</strong> tab, look up APNs from LA County parcel data, and copy
+          rows ready to paste back into the sheet.
         </p>
+
+        <ol className="howto">
+          <li>
+            Download tab 1 of{" "}
+            <a
+              href="https://docs.google.com/spreadsheets/d/10DlHR_AblJPPtnO341WOKyJYJhCHa61UZ2-6whANGwg/edit?gid=836921644#gid=836921644"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Altagether&apos;s spreadsheet
+            </a>{" "}
+            as a CSV (File → Download → Comma Separated Values).
+          </li>
+          <li>
+            Download a CSV from Redfin using this{" "}
+            <a
+              href="https://www.redfin.com/city/21169/CA/Altadena/filter/include=sold-3mo"
+              target="_blank"
+              rel="noreferrer"
+            >
+              saved Altadena search
+            </a>
+            . You need to be logged into a Redfin account to download the CSV.
+          </li>
+          <li>Upload both files below, then click Find new sales.</li>
+        </ol>
       </header>
 
       <section className="panel">
@@ -96,7 +122,7 @@ function App() {
           <label className={`upload-card ${sheetFile ? "ready" : ""}`}>
             <input
               type="file"
-              accept=".xlsx,.xls"
+              accept=".csv,.xlsx,.xls"
               onChange={(event) => {
                 setSheetFile(event.target.files?.[0] ?? null);
                 setResult(null);
@@ -104,8 +130,8 @@ function App() {
                 setCopied(false);
               }}
             />
-            <h2>1. Your spreadsheet export</h2>
-            <p>Excel export of the live sheet. The app reads the first tab named Sales Events.</p>
+            <h2>1. Spreadsheet CSV</h2>
+            <p>The Sales Events tab export from Altagether&apos;s sheet.</p>
             {sheetFile ? <span className="file-pill">{sheetFile.name}</span> : null}
           </label>
 
@@ -120,8 +146,8 @@ function App() {
                 setCopied(false);
               }}
             />
-            <h2>2. Redfin CSV download</h2>
-            <p>The downloaded Redfin export with recent Altadena past sales.</p>
+            <h2>2. Redfin CSV</h2>
+            <p>The CSV download from the saved Altadena sold search.</p>
             {redfinFile ? <span className="file-pill">{redfinFile.name}</span> : null}
           </label>
         </div>
@@ -269,8 +295,8 @@ function App() {
         </>
       ) : (
         <div className="empty-state" style={{ marginTop: "1.25rem" }}>
-          Upload both files, then run the comparison to see which Redfin sales are missing from
-          your tracker.
+          Follow the steps above, then upload both CSVs here to see which Redfin sales are missing
+          from the tracker.
         </div>
       )}
     </main>
